@@ -1,0 +1,19 @@
+{
+  "navigation": {
+    "title": "Free Talk",
+    "sub_title": "Free Talk",
+    "meta_title": "Free Talk",
+    "description": "Free Talk",
+    "keyword": "Free Talk"
+  },
+  "footer": {
+    "title": "Contact"
+  },
+  "common": {
+    "show_more": "show more",
+    "not_found_article": "NOT FOUND",
+    "not_found_page": "NOT FOUND",
+    "back_home": "Go Home",
+    "download": "Download"
+  }
+}

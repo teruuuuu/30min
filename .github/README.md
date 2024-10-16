@@ -1,0 +1,5 @@
+.env.local.example　を　.env.local　に変更して以下の値を設定する
+NEXT_PUBLIC_NOTION_TOKEN
+NEXT_PUBLIC_NOTION_NEWS_DATABASE_ID
+
+databaseを複数使う場合は、その都度追加が望ましい

@@ -1,0 +1,10 @@
+@charset "UTF-8";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ドロップダウンメニューがホバーしているときも表示されたままにする */
+/* .dropdown:hover .dropdown-menu,
+.dropdown-menu:hover {
+    display: block;
+} */

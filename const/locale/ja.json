@@ -1,0 +1,19 @@
+{
+    "navigation": {
+      "title": "Free Talk",
+      "sub_title": "Free Talk",
+      "meta_title": "Free Talk",
+      "description": "Free Talk",
+      "keyword": "Free Talk"
+    },
+    "footer": {
+      "title": "お問い合わせ"
+    },
+    "common": {
+      "show_more": "もっと詳しく",
+      "not_found_article": "記事がありません",
+      "not_found_page": "ページが見つかりません",
+      "back_home": "Homeに戻る",
+      "download": "ダウンロード"
+    }
+}

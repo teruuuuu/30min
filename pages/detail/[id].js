@@ -15,11 +15,11 @@ import saveImageIfNeeded from "../../components/download";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/16/solid";
 import { ParseHtml } from "../../components/parts/parse/parser";
 import Loading from '../../components/parts/loading';
+import { motion } from 'framer-motion';
 
 
 export default function Post({ page, list }) {
   const router = useRouter();
-
 
   const updateQuery = (p) => {
     const currentQuery = { ...router.query };
@@ -27,9 +27,6 @@ export default function Post({ page, list }) {
       ...currentQuery,
       p: p, // 値を1に設定
     };
-
-    console.log("ppppppppppppppppppppppp")
-  console.log(p)
     
     // クエリを更新
     router.replace({
@@ -59,7 +56,6 @@ export default function Post({ page, list }) {
   }
   resList.sort((a, b) => a.ordering - b.ordering)
 
-  console.log(currentPage)
   const [detail, setDetail] = useState(resList[currentPage-1])
 
   const [loading, setLoading] = useState(detail.image);
@@ -75,7 +71,6 @@ export default function Post({ page, list }) {
     setLasttPage(pageCount <= cp)
     setCurrentPage(cp)
     const detail = resList[cp-1]
-    console.log(detail)
     setDetail(detail)
     updateQuery(cp)
   }
@@ -146,9 +141,16 @@ export default function Post({ page, list }) {
                                 <>
                                 <Title title={detail.title} />
                                 {detail.html && (
-                                  <div className="w-full flex justify-center py-10">
+                                  <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1, delay: 1 }}
+                                    transition={{
+                                      ease: 'easeInOut',
+                                      duration: 0.7,
+                                      delay: 0.15,
+                                    }} className="w-full flex justify-center py-10">
                                     <ParseHtml html={detail.html} />
-                                  </div>
+                                  </motion.div>
                                 )}    
                                 {detail.text[0] && detail.image && (
                                     <div className="flex lg:flex-row flex-col item-center justify-center gap-10">
@@ -156,7 +158,15 @@ export default function Post({ page, list }) {
                                       {/* {detail.text[0].text.content} */}
                                         <Paragraphs value={detail.text} />
                                       </div>
-                                      <div className="relative lg:flex-shrink-0 w-full lg:w-1/2 overflow-hidden rounded-lg flex flex-col items-center justify-center">
+                                      <motion.div
+                                        key={currentPage}
+                                        initial={{ opacity: 0, x:180 }}
+                                        animate={{ opacity: 1, x:0, delay: 1 }}
+                                        transition={{
+                                          ease: 'easeInOut',
+                                          duration: 0.7,
+                                          delay: 0.15,
+                                        }} className="relative lg:flex-shrink-0 w-full lg:w-1/2 overflow-hidden rounded-lg flex flex-col items-center justify-center">
                                         {loading && <Loading />}
                                         <Image
                                           src={detail.image}
@@ -171,7 +181,7 @@ export default function Post({ page, list }) {
                                         {detail.credit && (
                                           <div className='text-gray-500 text-center'>画像提供:{detail.credit}</div>
                                         )}
-                                      </div>
+                                      </motion.div>
                                     </div>
                                 )}
                                 {detail.text[0] && !detail.image &&  (
@@ -181,7 +191,14 @@ export default function Post({ page, list }) {
                                 )}
                                 {!detail.text[0] && detail.image &&  (
                                     <div className="flex item-center justify-center ">
-                                      <div className="relative w-1/2 overflow-hidden rounded-lg flex flex-col items-center justify-center">
+                                      <motion.div
+                                        key={currentPage}
+                                        initial={{ opacity: 0, x:180 }}
+                                        animate={{ opacity: 1, x:0, delay: 1 }}
+                                        transition={{
+                                          ease: 'easeInOut',
+                                          duration: 0.7,
+                                          delay: 0.15,}} className="relative w-1/2 overflow-hidden rounded-lg flex flex-col items-center justify-center">
                                         {loading && <Loading />}
                                         <Image
                                           src={detail.image}
@@ -196,7 +213,7 @@ export default function Post({ page, list }) {
                                         {detail.credit && (
                                           <div className='text-gray-500 text-center'>画像提供:{detail.credit}</div>
                                         )}
-                                      </div>
+                                      </motion.div>
                                     </div>
                                 )}
                                                             

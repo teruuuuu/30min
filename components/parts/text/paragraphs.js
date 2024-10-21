@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
-
+import { motion } from 'framer-motion';
 
 export default function Paragraphs({ value }) {
     if(!value){
@@ -63,7 +63,14 @@ export default function Paragraphs({ value }) {
     const whiteSpaceStyle = isArray ? { whiteSpace: 'pre-wrap', overflowWeap: 'break-word', wordBreak: 'break-all' } : {}
     return (
       <div className={classname} style={whiteSpaceStyle} >
-        <div
+        <motion.div
+          initial={{ opacity: 0, x:-180 }}
+          animate={{ opacity: 1, x:0, delay: 1 }}
+          transition={{
+            ease: 'easeInOut',
+            duration: 0.7,
+            delay: 0.15,
+          }}  
           onClick={addCurrent}
           className={[
             bold ? "font-bold" : "",
@@ -77,7 +84,7 @@ export default function Paragraphs({ value }) {
           key={text.content}
         >
           {text.link ? <a className="text-black hover:text-blue-500 underline hover:no-underline transition duration-300" href={text.link.url} target='_blank'>{text.content}</a> : text.content}
-        </div>
+        </motion.div>
         <div className='flex flex-row h-2 text-center justify-center'>
           {count > 1 && value.map((tx, index) =>{
             return (

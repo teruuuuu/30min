@@ -9,6 +9,7 @@ import saveImageIfNeeded from '../components/download/index.js';
 import TopListEntity, { getListFromNotion } from '../entity/topListEntity.js';
 import Link from 'next/link.js';
 import Image from 'next/image.js';
+import { motion } from 'framer-motion';
 
 
 export default function Home({ list }) {
@@ -59,7 +60,7 @@ export default function Home({ list }) {
           <nav id="store" className="w-full z-30 top-0 px-6 py-1">
               <div className="w-full container mx-auto flex flex-wrap items-center justify-between mt-0 px-2 py-3">
                   {/* <a className="uppercase tracking-wide no-underline hover:no-underline font-bold text-gray-800 text-xl " href="#">Store</a> */}
-                  {/* <div className="flex items-center" id="store-nav-content">
+                  <div className="flex items-center" id="store-nav-content">
 
                       <a className="pl-3 inline-block no-underline hover:text-black" href="#">
                           <svg className="fill-current hover:text-black" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -73,7 +74,7 @@ export default function Home({ list }) {
                           </svg>
                       </a>
 
-                  </div> */}
+                  </div>
             </div>
           </nav>
           {entityList.map((entity) => {
@@ -86,7 +87,14 @@ export default function Home({ list }) {
             // }
             const tagClass = getBadgeColor(entity.tag.name)
             return (
-              <div className="w-full md:w-1/3 xl:w-1/4 p-6 flex flex-col">
+              <motion.div
+                initial={{ opacity: 0 , x: -180}}
+                animate={{ opacity: 1, x : 0, delay: 1 }}
+                transition={{
+                  ease: 'easeInOut',
+                  duration: 0.7,
+                  delay: 0.15,
+                }} className="w-full md:w-1/3 xl:w-1/4 p-6 flex flex-col ">
                 <Link href={detailUrl}>
                   <div className="relative w-full h-72 md:h-32 lg:h-48 ">
                     <Image className="hover:grow hover:shadow-lg" src={entity.image} layout="fill" objectFit="cover" />
@@ -98,7 +106,7 @@ export default function Home({ list }) {
                     </div>
                     <p className="pt-1 text-gray-900">{entity.date}</p>
                 </Link>
-              </div>
+              </motion.div>
             )
           })}
         </div>

@@ -56,7 +56,7 @@ export default function Home({ list }) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <section className="bg-white py-8">
-        <div className="container mx-auto flex items-center flex-wrap pt-4 pb-12">
+        <div className="container mx-auto flex items-center flex-wrap pb-12">
           <nav id="store" className="w-full z-30 top-0 px-6 py-1">
               <div className="w-full container mx-auto flex flex-wrap items-center justify-between mt-0 px-2 py-3">
                   {/* <a className="uppercase tracking-wide no-underline hover:no-underline font-bold text-gray-800 text-xl " href="#">Store</a> */}
@@ -94,7 +94,7 @@ export default function Home({ list }) {
                   ease: 'easeInOut',
                   duration: 0.7,
                   delay: 0.15,
-                }} className="w-full md:w-1/3 xl:w-1/4 p-6 flex flex-col ">
+                }} className="w-full md:w-1/3 xl:w-1/4 p-6 flex flex-col">
                 <Link href={detailUrl}>
                   <div className="relative w-full h-72 md:h-32 lg:h-48 ">
                     <Image className="hover:grow hover:shadow-lg" src={entity.image} layout="fill" objectFit="cover" />

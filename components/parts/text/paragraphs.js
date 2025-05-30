@@ -1,130 +1,113 @@
-import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import Link from 'next/link'; // Linkコンポーネントが使用される場合のためにインポートを保持
 
 export default function Paragraphs({ value }) {
-    if(!value){
-        return <></>
+    if (!value) {
+        return <></>;
     }
-    const [current, setCurrent] = useState(0)
-    
-    const classname = `flex flex-col mt-4 text-md font-light leading-relaxed text-gray-500 item-center justify-center h-full`
 
     const isArray = Array.isArray(value);
-    const [renderText, setRenderText] = useState(isArray ? value[0] : value)
+    const [current, setCurrent] = useState(0);
+    // valueが配列の場合、value[0]を初期値とし、そうでない場合はvalue自体を初期値とする
+    const [renderText, setRenderText] = useState(isArray ? value[0] : value);
+
+    // valueプロパティが変更されたときに、現在の表示をリセットする
     useEffect(() => {
       setCurrent(0); 
-      setRenderText(value[0]); 
-      console.log(value)
-    }, [value]); // valueが変わった時に実行
-  
-    console.log(value)
+      setRenderText(isArray ? value[0] : value); 
+    }, [value, isArray]); // isArrayも依存配列に追加
 
-    let count = 0
-    if(isArray){
-      count = value.length
-    }
+    // 配列の要素数
+    let count = isArray ? value.length : 0;
 
+    // 次のテキストへ進む関数
     const addCurrent = () => {
-      if(!isArray){
-        return
+      if (!isArray) { // 配列でない場合は何もしない
+        return;
       }
-      const added = current + 1
-      if(added >= count){
-        return
+      const added = current + 1;
+      if (added >= count) { // 最後のテキストを超えたら何もしない
+        return;
       }
-      setCurrent(added)
-      setRenderText(value[added])
-    }
+      setCurrent(added);
+      setRenderText(value[added]);
+    };
 
+    // 特定のインデックスのテキストへジャンプする関数
     const changeCurrent = (index) => {
-      if(!isArray){
-        return
+      if (!isArray) { // 配列でない場合は何もしない
+        return;
       }
-      const added = index
-      if(added >= count){
-        return
+      // インデックスが範囲外の場合は何もしない
+      if (index < 0 || index >= count) { 
+        return;
       }
-      setCurrent(added)
-      setRenderText(value[added])
-    }
+      setCurrent(index);
+      setRenderText(value[index]);
+    };
 
+    // レンダリングするテキストがない場合は何も表示しない
     if (!renderText) {
       return <></>;
     }
 
+    // renderTextが単一のオブジェクトであることを想定
     const {
       annotations: { bold, code, color, italic, strikethrough, underline },
       text,
     } = renderText;
 
-    
+    // テキスト内容がない場合は何も表示しない
+    if (!text || !text.content) {
+        return null;
+    }
 
-    const whiteSpaceStyle = isArray ? { whiteSpace: 'pre-wrap', overflowWeap: 'break-word', wordBreak: 'break-all' } : {}
     return (
-      <div className={classname} style={whiteSpaceStyle} >
-        <motion.div
-          initial={{ opacity: 0, x:-180 }}
-          animate={{ opacity: 1, x:0, delay: 1 }}
-          transition={{
-            ease: 'easeInOut',
-            duration: 0.7,
-            delay: 0.15,
-          }}  
-          onClick={addCurrent}
+      <div className="flex flex-col h-full"> {/* 親コンポーネントの高さに合わせて調整 */}
+        {/* テキストコンテンツエリア */}
+        <div 
+          onClick={addCurrent} // クリックで次のテキストへ
           className={[
             bold ? "font-bold" : "",
-            code ? "font-mono bg-gray-200 p-1 rounded" : "",
+            code ? "font-mono bg-white/20 p-1 rounded text-white" : "", // コードブロックのスタイル
             italic ? "italic" : "",
             strikethrough ? "line-through" : "",
             underline ? "underline" : "",
-            "flex-1 flex items-center justify-center "
+            "flex-1 flex items-center justify-center text-md font-light leading-relaxed text-white cursor-pointer" // Flexboxで中央寄せ、テキストスタイル、クリック可能
           ].join(" ")}
-          style={color !== "default" ? { color } : {}}
-          key={text.content}
+          style={{
+            ...(color !== "default" ? { color } : {}), // colorが"default"でない場合にcolorプロパティを追加
+            whiteSpace: 'pre-line' // whiteSpaceプロパティを追加
+          }}
         >
-          {text.link ? <a className="text-black hover:text-blue-500 underline hover:no-underline transition duration-300" href={text.link.url} target='_blank'>{text.content}</a> : text.content}
-        </motion.div>
-        <div className='flex flex-row h-2 text-center justify-center'>
-          {count > 1 && value.map((tx, index) =>{
-            return (
-              <span onClick={()=> changeCurrent(index)} className={`flex w-2 h-2 me-3 ${index == current ? 'bg-blue-800' : 'bg-gray-200'} rounded-full`}></span>
-            )
-          })}
+          {text.link ? (
+            <a 
+              className="text-cyan-400 hover:text-cyan-300 underline hover:no-underline transition duration-300" 
+              href={text.link.url} 
+              target='_blank' 
+              rel="noopener noreferrer" // セキュリティ対策
+              onClick={(e) => e.stopPropagation()} // リンククリック時はスライドしないように伝播を停止
+            >
+              {text.content}
+            </a>
+          ) : (
+            text.content
+          )}
         </div>
+
+        {/* ドットナビゲーション */}
+        {count > 1 && ( // テキストが複数ある場合のみドットを表示
+          <div className='flex flex-row mt-4 h-2 text-center justify-center'>
+            {value.map((_, index) => (
+              <span 
+                key={index} // ドットのキー
+                onClick={() => changeCurrent(index)} 
+                className={`flex w-2 h-2 mx-1 rounded-full cursor-pointer transition-colors duration-200 
+                            ${index === current ? 'bg-cyan-500' : 'bg-white/30 hover:bg-white/50'}`}
+              ></span>
+            ))}
+          </div>
+        )}
       </div>
     );
 }
-
-
-// export const Text = ({ value }) => {
-//   if (!value) {
-//     return null;
-//   }
-//   const {
-//     annotations: { bold, code, color, italic, strikethrough, underline },
-//     text,
-//   } = value;
-
-//   console.log("------------------")
-//   console.log(value)
-//     console.log(text)
-//     console.log("------------------")
-  
-//   return (
-//     <span
-//       className={[
-//         bold ? "font-bold" : "",
-//         code ? "font-mono bg-gray-200 p-1 rounded" : "",
-//         italic ? "italic" : "",
-//         strikethrough ? "line-through" : "",
-//         underline ? "underline" : "",
-//       ].join(" ")}
-//       style={color !== "default" ? { color } : {}}
-//       key={text.content}
-//     >
-//       {text.link ? <Link className="text-black hover:text-blue-500 underline hover:no-underline transition duration-300" href={text.link.url}>{text.content}</Link> : text.content}
-//     </span>
-//   );
-
-// };

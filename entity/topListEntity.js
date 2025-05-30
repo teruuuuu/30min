@@ -43,6 +43,53 @@ export default class TopListEntity {
         }
         this.tags = item.properties["genre"].multi_select
         this.tag = item.properties["genre"].multi_select[0]
+        switch (this.tag.name) {
+            case "technology":
+                // 濃い紫、半透明の背景、シアンのテキスト
+                this.colorClass = "bg-purple-500/20"; // 半透明の背景
+                this.setTextColorClass = "text-purple-300"; // 明るいテキスト色
+                this.setBorderClass = "border border-purple-500/50"; // 薄い枠線
+                break;
+            case "life":
+                // 濃いピンク、半透明の背景、ピンクのテキスト
+                this.colorClass = "bg-pink-500/20";
+                this.setTextColorClass = "text-pink-300";
+                this.setBorderClass = "border border-pink-500/50";
+                break;
+            case "nature":
+                // 濃いエメラルドグリーン、半透明の背景、エメラルドのテキスト
+                this.colorClass = "bg-emerald-500/20";
+                this.setTextColorClass = "text-emerald-300";
+                this.setBorderClass = "border border-emerald-500/50";
+                break;
+            case "music":
+                // 濃いシアン、半透明の背景、シアンのテキスト
+                this.colorClass = "bg-cyan-500/20";
+                this.setTextColorClass = "text-cyan-300";
+                this.setBorderClass = "border border-cyan-500/50";
+                break;
+            case "game":
+                // 濃い赤、半透明の背景、赤のテキスト
+                this.colorClass = "bg-red-500/20";
+                this.setTextColorClass = "text-red-300";
+                this.setBorderClass = "border border-red-500/50";
+                break;
+            case "history":
+                // 濃いオレンジ、半透明の背景、オレンジのテキスト
+                this.colorClass = "bg-orange-500/20";
+                this.setTextColorClass = "text-orange-300";
+                this.setBorderClass = "border border-orange-500/50";
+                break;
+            default:
+                // デフォルトは白っぽい半透明背景と白テキスト
+                this.colorClass = "bg-white/10";
+                this.setTextColorClass = "text-white/80";
+                this.setBorderClass = "border border-white/20";
+                break;
+        }
+
+        // 共通のスタイルもここで結合
+        this.tagClass = `${this.colorClass} ${this.setTextColorClass} ${this.setBorderClass} text-xs me-2 px-2.5 py-0.5 rounded-full backdrop-blur-sm`;
         this.ordering = item.properties["ordering"].number
         this.active = item.properties["active"].checkbox
         this.externalLink = item.properties["externalLink"].url

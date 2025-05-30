@@ -15,8 +15,6 @@ import saveImageIfNeeded from "../../components/download";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/16/solid";
 import { ParseHtml } from "../../components/parts/parse/parser";
 import Loading from '../../components/parts/loading';
-import { motion } from 'framer-motion';
-
 
 export default function Post({ page, list }) {
   const router = useRouter();
@@ -25,10 +23,9 @@ export default function Post({ page, list }) {
     const currentQuery = { ...router.query };
     const newQuery = {
       ...currentQuery,
-      p: p, // 値を1に設定
+      p: p,
     };
     
-    // クエリを更新
     router.replace({
       pathname: router.pathname,
       query: newQuery,
@@ -40,14 +37,19 @@ export default function Post({ page, list }) {
   let lang = json.navigation
 
   if (!page || !list ) {
-    return <div>{json.common.not_found_article}</div>;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
+        <div className="text-white text-xl">{json.common.not_found_article}</div>
+      </div>
+    );
   }
+
   const { p } = router.query;
-
   const [currentPage, setCurrentPage] = useState(p ? p : 1)
-
   const [isFirstPage, setFirstPage] = useState(true)
   const [isLastPage, setLasttPage] = useState(false)
+  const [isImageLoading, setIsImageLoading] = useState(true)
+  
   const pageCount = list.length
   const pageEntity = new TopListEntity(page, locale == "ja")
   let resList = []
@@ -58,32 +60,29 @@ export default function Post({ page, list }) {
 
   const [detail, setDetail] = useState(resList[currentPage-1])
 
-  const [loading, setLoading] = useState(detail.image);
-
-
   const nextPage = () => {
     const cp = Number(currentPage) + 1
-    if(cp > pageCount){
-        console.log(pageCount)
-      return
-    }
+    if(cp > pageCount) return
+    
     setFirstPage(cp <= 1)
     setLasttPage(pageCount <= cp)
     setCurrentPage(cp)
     const detail = resList[cp-1]
     setDetail(detail)
+    setIsImageLoading(true)
     updateQuery(cp)
   }
+  
   const prevPage = () => {
     const cp = Number(currentPage) - 1
-    if(cp < 0){
-      return
-    }
+    if(cp < 0) return
+    
     setFirstPage(cp <= 1)
     setLasttPage(pageCount <= cp)
     setCurrentPage(cp)
     const detail = resList[cp-1]
     setDetail(detail)
+    setIsImageLoading(true)
     updateQuery(cp)
   }
 
@@ -95,149 +94,238 @@ export default function Post({ page, list }) {
       setLasttPage(pageCount <= p)
       const detail = resList[p-1]
       setDetail(detail)
+      setIsImageLoading(true)
     }
-  }, [router.query.p]); // pが変更されたときに実行
+  }, [router.query.p]);
 
-
-
-  let pageTitle = ""
-  let pageSubTitle = ""
-  if(pageEntity && pageEntity.title){
-    pageTitle = pageEntity.title
-  }
-  if(pageEntity && pageEntity.text){
-    pageSubTitle = pageEntity.text
-  }
+  let pageTitle = pageEntity?.title || ""
+  let pageSubTitle = pageEntity?.text || ""
 
   let breadcrumb = {
     parents: null,
-    current: `${pageTitle} 〜 ${pageSubTitle} `
+    current: `${pageTitle} 〜 ${pageSubTitle}`
   }
 
-//   const adIndex = Math.ceil(blocks.length/2)
   return (
     <Layout breadcrumb={breadcrumb}>
       <Head>
-        <title>{pageTitle} - {metaTitleExtension} </title>
+        <title>{pageTitle} - {metaTitleExtension}</title>
         <meta name="description" content={`${lang.about} - ${lang.description}`} />
       </Head>
 
-      <div className="">
-        <div className="row">
-          <section className="py-1 mb-4 pb-4">
-            <div className="container lg:px-5 mx-auto">
-              <div className="items-center gap-4 md:gap-8 my-24">
-                    {/* Post content*/}
-                    <article>
-                        <header className="mb-4 ">
-                          <div className="w-full flex flex-cols">
-                            <div className={`flex-none w-7 flex items-center justify-center m-5 ${isFirstPage ? 'invisible' : ''} `}>
-                              <p className="text-center">
-                                <button onClick={() => prevPage()}><ChevronLeftIcon className="w-10 h-10"/></button>
-                              </p>
-                            </div>
-                            <div className="grow px-2 md:px-10 min-h-96 items-center">
-                              {detail && (
-                                <>
-                                <Title title={detail.title} />
-                                {detail.html && (
-                                  <motion.div
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1, delay: 1 }}
-                                    transition={{
-                                      ease: 'easeInOut',
-                                      duration: 0.7,
-                                      delay: 0.15,
-                                    }} className="w-full flex justify-center py-10">
-                                    <ParseHtml html={detail.html} />
-                                  </motion.div>
-                                )}    
-                                {detail.text[0] && detail.image && (
-                                    <div className="flex lg:flex-row flex-col item-center justify-center gap-10">
-                                      <div className='lg:flex-1 flex items-center justify-center'>
-                                      {/* {detail.text[0].text.content} */}
-                                        <Paragraphs value={detail.text} />
-                                      </div>
-                                      <motion.div
-                                        key={currentPage}
-                                        initial={{ opacity: 0, x:180 }}
-                                        animate={{ opacity: 1, x:0, delay: 1 }}
-                                        transition={{
-                                          ease: 'easeInOut',
-                                          duration: 0.7,
-                                          delay: 0.15,
-                                        }} className="relative lg:flex-shrink-0 w-full lg:w-1/2 overflow-hidden rounded-lg flex flex-col items-center justify-center">
-                                        {loading && <Loading />}
-                                        <Image
-                                          src={detail.image}
-                                          alt={detail.title}
-                                          width={800}  // サイズを大きめに設定
-                                          height={400}
-                                          layout="responsive"
-                                          onLoad={() => setLoading(false)}
-                                          objectFit="cover"
-                                          className="transition-transform duration-500 ease-in-out transform hover:scale-105 my-10 rounded-lg object-cover max-h-96"
-                                        />
-                                        {detail.credit && (
-                                          <div className='text-gray-500 text-center'>画像提供:{detail.credit}</div>
-                                        )}
-                                      </motion.div>
-                                    </div>
-                                )}
-                                {detail.text[0] && !detail.image &&  (
-                                  <div className='lg:flex-1 flex items-center justify-center'>
-                                    <Paragraphs value={detail.text} />
-                                  </div>
-                                )}
-                                {!detail.text[0] && detail.image &&  (
-                                    <div className="flex item-center justify-center ">
-                                      <motion.div
-                                        key={currentPage}
-                                        initial={{ opacity: 0, x:180 }}
-                                        animate={{ opacity: 1, x:0, delay: 1 }}
-                                        transition={{
-                                          ease: 'easeInOut',
-                                          duration: 0.7,
-                                          delay: 0.15,}} className="relative w-1/2 overflow-hidden rounded-lg flex flex-col items-center justify-center">
-                                        {loading && <Loading />}
-                                        <Image
-                                          src={detail.image}
-                                          alt={detail.title}
-                                          width={800}  // サイズを大きめに設定
-                                          height={400}
-                                          layout="responsive"
-                                          objectFit="cover"
-                                          onLoad={() => setLoading(false)}
-                                          className="transition-transform duration-500 ease-in-out transform hover:scale-105 my-10 rounded-lg object-cover max-h-96"
-                                        />
-                                        {detail.credit && (
-                                          <div className='text-gray-500 text-center'>画像提供:{detail.credit}</div>
-                                        )}
-                                      </motion.div>
-                                    </div>
-                                )}
-                                                            
-                                </>
-                              )}
-                            </div>
-                            <div className={`flex-none w-7 flex items-center justify-center m-5 ${isLastPage ? 'invisible' : ''}`}>
-                              <p className="text-center">
-                               <button onClick={() => nextPage()}><ChevronRightIcon className="w-10 h-10"/></button>
-                              </p>
-                            </div>
-                          </div>
-                        </header>
-
-
-                    </article>
-              </div>
-            </div>
-          </section>
+      {/* Hero Header */}
+      <section className="relative min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 overflow-hidden">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0">
+          <div className="absolute top-20 left-20 w-64 h-64 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-pulse"></div>
+          <div className="absolute top-40 right-20 w-80 h-80 bg-cyan-500 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-pulse animation-delay-2000"></div>
+          <div className="absolute bottom-20 left-1/3 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-pulse animation-delay-4000"></div>
         </div>
-      </div>
+
+        <div className="relative z-10 container mx-auto px-6 py-12">
+          {/* Navigation Header */}
+          <div className="flex items-center justify-between mb-8">
+            <Link href="/">
+              <button className="flex items-center space-x-2 text-white/80 hover:text-white transition-colors duration-300 group">
+                <svg className="w-5 h-5 transform group-hover:-translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                <span>Back to Home</span>
+              </button>
+            </Link>
+            
+            {/* Page Counter */}
+            <div className="bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 text-white font-medium">
+              {currentPage} / {pageCount}
+            </div>
+          </div>
+
+          {/* Main Content Container */}
+          <div className="flex items-center justify-between min-h-[80vh]">
+            {/* Previous Button */}
+            <button 
+              onClick={prevPage}
+              className={`group flex-shrink-0 w-16 h-16 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center transition-all duration-300 hover:bg-white/20 hover:scale-110 ${isFirstPage ? 'opacity-30 cursor-not-allowed' : 'hover:shadow-lg'}`}
+              disabled={isFirstPage}
+            >
+              <ChevronLeftIcon className="w-8 h-8 text-white group-hover:text-cyan-400 transition-colors duration-300" />
+            </button>
+
+            {/* Content Area */}
+            <div className="flex-1 mx-8">
+              {detail && (
+                <div className="bg-white/10 backdrop-blur-lg rounded-3xl border border-white/20 p-8 md:p-12 shadow-2xl animate-fade-in-up">
+                  {/* Title */}
+                  <h1 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
+                    {detail.title}
+                  </h1>
+
+                  {/* HTML Content */}
+                  {detail.html && (
+                    <div className="mb-8 prose prose-lg prose-invert max-w-none">
+                      <ParseHtml html={detail.html} />
+                    </div>
+                  )}
+
+                  {/* Content Layout */}
+                  <div className="space-y-8">
+                    {/* Text + Image Layout */}
+                    {detail.text[0] && detail.image && (
+                      <div className="grid lg:grid-cols-2 gap-12 items-center">
+                        {/* Text Content */}
+                        <div className="space-y-6">
+                          <div className="prose prose-lg prose-invert max-w-none">
+                            <Paragraphs value={detail.text} />
+                          </div>
+                        </div>
+
+                        {/* Image */}
+                        <div className="relative group">
+                          <div className="relative overflow-hidden rounded-2xl shadow-2xl">
+                            {isImageLoading && (
+                              <div className="absolute inset-0 bg-white/10 animate-pulse rounded-2xl flex items-center justify-center">
+                                <Loading />
+                              </div>
+                            )}
+                            <Image
+                              src={detail.image}
+                              alt={detail.title}
+                              width={800}
+                              height={400}
+                              layout="responsive"
+                              objectFit="cover"
+                              onLoad={() => setIsImageLoading(false)}
+                              className="transition-transform duration-700 group-hover:scale-105 rounded-2xl"
+                            />
+                          </div>
+                          {detail.credit && (
+                            <p className="text-gray-400 text-sm mt-3 text-center">
+                              画像提供: {detail.credit}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Text Only */}
+                    {detail.text[0] && !detail.image && (
+                      <div className="max-w-4xl mx-auto">
+                        <div className="prose prose-lg prose-invert max-w-none">
+                          <Paragraphs value={detail.text} />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Image Only */}
+                    {!detail.text[0] && detail.image && (
+                      <div className="flex justify-center">
+                        <div className="relative max-w-2xl group">
+                          <div className="relative overflow-hidden rounded-2xl shadow-2xl">
+                            {isImageLoading && (
+                              <div className="absolute inset-0 bg-white/10 animate-pulse rounded-2xl flex items-center justify-center">
+                                <Loading />
+                              </div>
+                            )}
+                            <Image
+                              src={detail.image}
+                              alt={detail.title}
+                              width={800}
+                              height={400}
+                              layout="responsive"
+                              objectFit="cover"
+                              onLoad={() => setIsImageLoading(false)}
+                              className="transition-transform duration-700 group-hover:scale-105 rounded-2xl"
+                            />
+                          </div>
+                          {detail.credit && (
+                            <p className="text-gray-400 text-sm mt-3 text-center">
+                              画像提供: {detail.credit}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Next Button */}
+            <button 
+              onClick={nextPage}
+              className={`group flex-shrink-0 w-16 h-16 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center transition-all duration-300 hover:bg-white/20 hover:scale-110 ${isLastPage ? 'opacity-30 cursor-not-allowed' : 'hover:shadow-lg'}`}
+              disabled={isLastPage}
+            >
+              <ChevronRightIcon className="w-8 h-8 text-white group-hover:text-cyan-400 transition-colors duration-300" />
+            </button>
+          </div>
+
+          {/* Progress Bar */}
+          <div className="mt-8">
+            <div className="w-full bg-white/10 rounded-full h-2 backdrop-blur-sm">
+              <div 
+                className="bg-gradient-to-r from-purple-500 to-cyan-500 h-2 rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${(currentPage / pageCount) * 100}%` }}
+              ></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <style jsx>{`
+        @keyframes fade-in-up {
+          from {
+            opacity: 0;
+            transform: translateY(40px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .animate-fade-in-up {
+          animation: fade-in-up 0.8s ease-out forwards;
+        }
+
+        .animation-delay-2000 {
+          animation-delay: 2s;
+        }
+
+        .animation-delay-4000 {
+          animation-delay: 4s;
+        }
+
+        .prose-invert {
+          color: rgba(255, 255, 255, 0.9);
+        }
+
+        .prose-invert h1,
+        .prose-invert h2,
+        .prose-invert h3,
+        .prose-invert h4,
+        .prose-invert h5,
+        .prose-invert h6 {
+          color: white;
+        }
+
+        .prose-invert p {
+          color: rgba(255, 255, 255, 0.8);
+          line-height: 1.7;
+        }
+
+        .prose-invert a {
+          color: #60a5fa;
+        }
+
+        .prose-invert a:hover {
+          color: #3b82f6;
+        }
+      `}</style>
     </Layout>
   );
 }
+
 export const getStaticPaths = async () => {
     const database = await getListFromNotion()
     let list = await getContentList(database, null)
@@ -257,7 +345,6 @@ export const getStaticPaths = async () => {
 export const getStaticProps = async (context) => {
     const { id } = context.params;
     
-  
     const page = await getPage(id)
     const blocks = await getBlocks(id)
 
@@ -266,7 +353,6 @@ export const getStaticProps = async (context) => {
     for(let item of database){
       props.push(item.properties)
     }
-    //画像保存がうまくできない
     await saveImageIfNeeded(props, `detail/${id}`)
 
     return {
